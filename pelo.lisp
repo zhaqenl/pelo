@@ -120,8 +120,7 @@
             ((interval-p) (setf *interval* (get-opt "i"))
              (ping-host (remainder) nil))
             ((host-present-p) (ping-host (remainder) nil))
-            ((help-p) (print-help))
-            (t (print-help)))
+            ((or (help-p) t) (print-help)))
     (#+sbcl sb-sys:interactive-interrupt
      #+ccl  ccl:interrupt-signal-condition
      #+clisp system::simple-interrupt-condition
