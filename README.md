@@ -32,5 +32,5 @@ make -C ~/common-lisp/pelo install
 
 ## Credits
 
-The structure of this README is based on [baf](https://github.com/ebzzry/baf/) by
-[ebzzry](https://github.com/ebzzry).
+This is inspired by [pell](https://github.com/ebzzry/pell) and the structure of this README is based
+on [baf](https://github.com/ebzzry/baf) by [ebzzry](https://github.com/ebzzry).
