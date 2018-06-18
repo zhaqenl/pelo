@@ -21,10 +21,10 @@
                   :typespec 'fixnum :argument-name "NUMBER"
                   :description "Number of packets to send.")))
 
-(defvar *interval* 1)
-(defvar *count* 1)
-(defvar *sent* 0)
-(defvar *received* 0)
+(defvar *interval* 1 "Time in between pings")
+(defvar *count* 1 "Number of packets to send (initialized to 1 as placeholder)")
+(defvar *sent* 0 "Number of packets sent")
+(defvar *received* 0 "Number of packets received")
 
 (defun count-down ()
   "Decrement *count* variable by 1."
