@@ -26,7 +26,8 @@ git clone https://github.com/fare/asdf ~/common-lisp/asdf
 git clone https://github.com/zhaqenl/pelo ~/common-lisp/pelo
 curl -O https://beta.quicklisp.org/quicklisp.lisp
 sbcl --noinform --eval "(mapc #'ql:quickload '(:inferior-shell :clon :cl-launch :fare-utils :cl-scripting))" --quit
-make -C ~/common-lisp/pelo install
+cd ~/common-lisp/pelo
+make install
 ```
 
 
