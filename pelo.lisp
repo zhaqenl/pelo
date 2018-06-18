@@ -26,14 +26,17 @@
 (defvar *sent* 0)
 (defvar *received* 0)
 
-(defun statistics ()
-  "Show stats of the pelo runtime."
-  (format *debug-io* "~a" (format nil "~&~%Sent: ~A ~&Received: ~A ~&Percent loss: ~A%~&" *sent*
-                                  *received* (cond ((= 0 *received*) 100)
-                                                   ((= 1 (/ *received* *sent*)) 0)
-                                                   (t (/ *received* (/ *sent* 1.0))))))
-  (force-output *debug-io*)
-  (exit))
+(defun count-down ()
+  "Decrement *count* variable by 1."
+  (decf *count*))
+
+(defun sent-up ()
+  "Increment *sent* variable by 1."
+  (incf *sent*))
+
+(defun received-up ()
+  "Increment *received* variable by 1."
+  (incf *received*))
 
 (defun get-opt (option)
   "Get the value of OPTION from the context."
@@ -62,50 +65,62 @@
   "Get current formatted date as string."
   (inferior-shell:run/ss `(date "+%Y-%m-%d %H:%M:%S")))
 
+(defun statistics ()
+  "Show stats of the pelo runtime."
+  (format *debug-io* "~a" (format nil "~&~%Sent: ~A ~&Received: ~A ~&Percent loss: ~A%~&" *sent*
+                                  *received* (cond ((= 0 *received*) 100)
+                                                   ((= 1 (/ *received* *sent*)) 0)
+                                                   (t (/ *received* (/ *sent* 1.0))))))
+  (force-output *debug-io*)
+  (exit))
+
 (defun get-ping (host)
   "Get ping reply from host."
   (inferior-shell:run/ss `(inferior-shell:pipe (ping -c 1 ,host) (grep "time=")
                                                (sed -e "s/^.*time=//;s/ *ms$//"))))
 
+(defun dead-print (date)
+  "Print only the date."
+  (format *debug-io* "~&~A~&" date)
+  (force-output *debug-io*)
+  (sleep *interval*))
+
+(defun alive-print (date ping)
+  "Print date with the ping."
+  (format *debug-io* "~&~A ~A~&" date ping)
+  (force-output *debug-io*)
+  (sleep *interval*))
+
 (defun dead-ping (date host count-p)
   "Increment the variables for (statistics), then output only the date if host is not alive."
   (if count-p
-      (progn (setf *count* (- *count* 1))
-             (setf *sent* (+ *sent* 1))
-             (format *debug-io* "~&~A~&" date)
-             (force-output *debug-io*)
-             (sleep *interval*)
+      (progn (count-down)
+             (sent-up)
+             (dead-print date)
              (ping-host host count-p))
-      (progn (setf *sent* (+ *sent* 1))
-             (format *debug-io* "~&~A~&" date)
-             (force-output *debug-io*)
-             (sleep *interval*)
+      (progn (sent-up)
+             (dead-print date)
              (ping-host host count-p))))
 
 (defun alive-ping (date host ping count-p)
-  "Increment the variables for (statistics), then output the date and the corresponding ping."
+  "Increment the variables for (statistics), then output the date and ping."
   (if count-p
-      (progn (setf *count* (- *count* 1))
-             (setf *sent* (+ *sent* 1))
-             (setf *received* (+ *received* 1))
-             (format *debug-io* "~&~A ~A~&" date ping)
-             (force-output *debug-io*)
-             (sleep *interval*)
+      (progn (count-down)
+             (sent-up)
+             (received-up)
+             (alive-print date ping)
              (ping-host host count-p))
-      (progn (setf *sent* (+ *sent* 1))
-             (setf *received* (+ *received* 1))
-             (format *debug-io* "~&~A ~A~&" date ping)
-             (force-output *debug-io*)
-             (sleep *interval*)
+      (progn (sent-up)
+             (received-up)
+             (alive-print date ping)
              (ping-host host count-p))))
 
 (defun ping-host (host count-p)
   "Send ping to host continually."
   (let ((output (get-ping host))
         (date (get-date)))
-    (when (= 0 *count*)
-      (statistics))
-    (cond ((string= output "") (dead-ping date host count-p))
+    (cond ((= 0 *count*) (statistics))
+          ((string= output "") (dead-ping date host count-p))
           (t (alive-ping date host output count-p)))))
 
 (defun main (host)
