@@ -59,6 +59,7 @@
   (and (host-present-p) (get-opt "i")))
 
 (defun count-p ()
+  "Check if host is provided with the count option."
   (and (host-present-p) (get-opt "c")))
 
 (defun get-date ()
