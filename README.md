@@ -34,4 +34,5 @@ make install
 ## Credits
 
 This is inspired by [pell](https://github.com/ebzzry/pell) and the structure of this README is based
-on [baf](https://github.com/ebzzry/baf) by [ebzzry](https://github.com/ebzzry).
+on [baf](https://github.com/ebzzry/baf) by [ebzzry](https://github.com/ebzzry) (and the sound files
+are also from [pell](https://github.com/ebzzry/pell)).
