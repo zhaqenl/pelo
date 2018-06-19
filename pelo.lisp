@@ -172,39 +172,52 @@ running, to end pelo and show the accumulated stats.
   "The entry point"
   (declare (ignorable host))
   (handler-case
-      (cond ((and (count-p) (interval-p) (beep-on-p)) (enable-beep-on) (change-count)
+      (cond ((and (count-p) (interval-p) (beep-on-p)) ; check for -c -i -b
+             (enable-beep-on)
+             (change-count)
              (change-interval)
              (ping-host (remainder) t))
-
-            ((and (count-p) (interval-p) (beep-off-p)) (enable-beep-off) (change-count)
+            ((and (count-p) (interval-p) (beep-off-p)) ; check for -c -i -B
+             (enable-beep-off)
+             (change-count)
              (change-interval)
              (ping-host (remainder) t))
-
-            ((and (count-p) (interval-p)) (change-count) (change-interval)
+            ((and (count-p) (interval-p)) ; check for -c -i
+             (change-count)
+             (change-interval)
              (ping-host (remainder) t))
-            
-            ((and (count-p) (beep-on-p)) (change-count) (enable-beep-on) (ping-host (remainder) t))
-
-            ((and (count-p) (beep-off-p)) (change-count) (enable-beep-off) (ping-host (remainder)
-                                                                                      t))
-            
-            ((and (interval-p) (beep-on-p)) (change-interval) (enable-beep-on) (ping-host (remainder)
-                                                                                          nil))
-
-            ((and (interval-p) (beep-off-p)) (change-interval) (enable-beep-off) (ping-host (remainder)
-                                                                                            nil))
-
-            ((beep-on-p) (enable-beep-on) (ping-host (remainder) nil))
-
-            ((beep-off-p) (enable-beep-off) (ping-host (remainder) nil))
-
-            ((count-p) (change-count) (ping-host (remainder) t))
-            
-            ((interval-p) (change-interval) (ping-host (remainder) nil))
-            
-            ((host-present-p) (ping-host (remainder) nil))
-            
-            ((or (help-p) t) (print-help)))
+            ((and (count-p) (beep-on-p)) ; check for -c -b
+             (change-count)
+             (enable-beep-on)
+             (ping-host (remainder) t))
+            ((and (count-p) (beep-off-p)) ; check for -c -B
+             (change-count)
+             (enable-beep-off)
+             (ping-host (remainder) t))
+            ((and (interval-p) (beep-on-p)) ; check for -i -b
+             (change-interval)
+             (enable-beep-on)
+             (ping-host (remainder) nil))
+            ((and (interval-p) (beep-off-p)) ; check for -i -B
+             (change-interval)
+             (enable-beep-off)
+             (ping-host (remainder) nil))
+            ((beep-on-p) ; check for -b
+             (enable-beep-on)
+             (ping-host (remainder) nil))
+            ((beep-off-p) ; check for -B
+             (enable-beep-off)
+             (ping-host (remainder) nil))
+            ((count-p) ; check for -c
+             (change-count)
+             (ping-host (remainder) t))
+            ((interval-p) ; check for -i
+             (change-interval)
+             (ping-host (remainder) nil))
+            ((host-present-p)
+             (ping-host (remainder) nil))
+            ((or (help-p) t)
+             (print-help)))
     (#+sbcl sb-sys:interactive-interrupt
      #+ccl  ccl:interrupt-signal-condition
      #+clisp system::simple-interrupt-condition
