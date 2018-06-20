@@ -1,14 +1,14 @@
 pelo
 ====
 
-pelo is a periodic host monitor that utilizes ping to check for
-host availability.
+
+pelo is a periodic host monitor that utilizes ping to check for host availability.
 
 
 Installation
 ------------
 
-Install the dependencies using the following commands, on Debian and NixOS, respectively:
+Install the dependencies using the following commands, on Debian and NixOS systems, respectively:
 
 ```bash
 sudo apt-get install -y sbcl cl-launch make git
@@ -18,21 +18,22 @@ sudo apt-get install -y sbcl cl-launch make git
 nix-env -i sbcl cl-launch gnumake git
 ```
 
-Then install pelo:
+Then, install pelo:
 
 ```bash
 mkdir -p ~/bin ~/common-lisp
 git clone https://github.com/fare/asdf ~/common-lisp/asdf
 git clone https://github.com/zhaqenl/pelo ~/common-lisp/pelo
 curl -O https://beta.quicklisp.org/quicklisp.lisp
+sbcl --load quicklisp.lisp --eval  '(quicklisp-quickstart:install)' --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file) (ql:quickload :cl-launch) (sb-ext:quit))'
 sbcl --noinform --eval "(mapc #'ql:quickload '(:inferior-shell :clon :cl-launch :fare-utils :cl-scripting))" --quit
 cd ~/common-lisp/pelo
 make install
 ```
 
 
-## Credits
+Credits
+-------
 
-This is inspired by [pell](https://github.com/ebzzry/pell) and the structure of this README is based
-on [baf](https://github.com/ebzzry/baf) by [ebzzry](https://github.com/ebzzry) (and the sound files
-are also from [pell](https://github.com/ebzzry/pell)).
+This was inspired by [pell](https://github.com/ebzzry/pell) and the structure of this README was
+based on [baf](https://github.com/ebzzry/baf).
