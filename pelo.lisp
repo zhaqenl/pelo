@@ -27,8 +27,6 @@ running, to end pelo and show the accumulated stats.
          (flag :short-name "B" :long-name "beep-offline"
                :description "Beep if host is down.")))
 
-(defvar *help* nil "Display help page if set to t.")
-
 (defvar *interval* 1 "Time in between pings")
 (defvar *count* 1 "Number of packets to send (initialized to 1 as placeholder)")
 
