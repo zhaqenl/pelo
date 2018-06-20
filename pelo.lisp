@@ -27,6 +27,8 @@ running, to end pelo and show the accumulated stats.
          (flag :short-name "B" :long-name "beep-offline"
                :description "Beep if host is down.")))
 
+(defvar *help* nil "Display help page if set to t.")
+
 (defvar *interval* 1 "Time in between pings")
 (defvar *count* 1 "Number of packets to send (initialized to 1 as placeholder)")
 
@@ -35,6 +37,8 @@ running, to end pelo and show the accumulated stats.
 
 (defvar *beep-online* nil "For the beep on check")
 (defvar *beep-offline* nil "For the beep off check")
+
+(defvar *count-p* nil "To check whether to count down.")
 
 (defvar *online* "common-lisp/pelo/resources/online.mp3" "Sound file for online host")
 (defvar *offline* "common-lisp/pelo/resources/offline.mp3" "Sound file for offline host")
@@ -55,25 +59,9 @@ running, to end pelo and show the accumulated stats.
   "Print help text."
   (help) (exit))
 
-(defun host-present-p ()
+(defun host-present ()
   "Check if host is provided."
   (remainder :context (make-context)))
-
-(defun beep-on-p ()
-  "Check if beep online flag is provided."
-  (and (host-present-p) (get-opt "b")))
-
-(defun beep-off-p ()
-  "Check if beep online flag is provided."
-  (and (host-present-p) (get-opt "B")))
-
-(defun interval-p ()
-  "Check if host is provided and interval option is present."
-  (and (host-present-p) (get-opt "i")))
-
-(defun count-p ()
-  "Check if host is provided with the count option."
-  (and (host-present-p) (get-opt "c")))
 
 (defun beep-on ()
   "Play sound if host is online."
@@ -91,29 +79,15 @@ running, to end pelo and show the accumulated stats.
   "Increment *sent* variable by 1."
   (incf *sent*))
 
-(defun received-up ()
-  "Increment *received* variable by 1."
-  (incf *received*))
-
-(defun change-count ()
-  "Set the value of *count* to value of -c option. "
-  (setf *count* (get-opt "c")))
-
-(defun change-interval ()
-  "Set the value of *interval* to value of -i option."
-  (setf *interval* (get-opt "i")))
-
-(defun enable-beep-on ()
-  "Set value of *beep-online* to t."
-  (setf *beep-online* t))
-
-(defun enable-beep-off ()
-  "Set value of *beep-offline* to nil."
-  (setf *beep-offline* t))
-
 (defun get-date ()
   "Get current formatted date as string."
   (inferior-shell:run/ss `(date "+%Y-%m-%d %H:%M:%S")))
+
+(defun count-sleep ()
+  "Check value of *count*, if 0, then display stats, else sleep."
+  (if (= 0 *count*)
+      (statistics)
+      (sleep *interval*)))
 
 (defun statistics ()
   "Show stats of the pelo runtime."
@@ -132,12 +106,12 @@ running, to end pelo and show the accumulated stats.
 (defun dead-print (date)
   "Print only the date."
   (format t "~&~A~&" date)
-  (sleep *interval*))
+  (count-sleep))
 
 (defun alive-print (date ping)
   "Print date with the ping."
   (format t "~&~A ~A~&" date ping)
-  (sleep *interval*))
+  (count-sleep))
 
 (defun dead-ping (date host count-p)
   "Increment the variables for (statistics), then output only the date."
@@ -152,72 +126,39 @@ running, to end pelo and show the accumulated stats.
 
 (defun alive-ping (date host ping count-p)
   "Increment the variables for (statistics), then output the date and ping."
-  (cond (count-p (count-down)
-                 (and *beep-online* (beep-on))
-                 (alive-print date ping)
-                 (ping-host host count-p))
-        (t (and *beep-online* (beep-on))
-           (alive-print date ping)
-           (ping-host host count-p))))
+  (if count-p
+      (progn (count-down)
+             (and *beep-online* (beep-on))
+             (alive-print date ping)
+             (ping-host host count-p))
+      (progn (and *beep-online* (beep-on))
+             (alive-print date ping)
+             (ping-host host count-p))))
 
 (defun ping-host (host count-p)
   "Send ping to host continually."
   (let ((output (get-ping host))
         (date (get-date)))
-    (cond ((= 0 *count*) (statistics))
-          ((string= output "") (sent-up) (dead-ping date host count-p))
-          (t (sent-up) (received-up) (alive-ping date host output count-p)))))
+    (if (string= output "")
+        (progn (sent-up)
+               (dead-ping date host count-p))
+        (progn (sent-up)
+               (incf *received*)
+               (alive-ping date host output count-p)))))
 
 (defun main (host)
   "The entry point"
   (declare (ignorable host))
+  (make-context)
+  (do-cmdline-options (option name value source)
+    (cond ((or (string= name "b") (string= name "beep-online")) (setf *beep-online* t))
+          ((or (string= name "B") (string= name "beep-offline")) (setf *beep-offline* t))
+          ((or (string= name "c") (string= name "count")) (setf *count-p* t)
+           (setf *count* value))
+          ((or (string= name "i") (string= name "interval")) (setf *interval* value)))) 
   (handler-case
-      (cond ((and (count-p) (interval-p) (beep-on-p)) ; check for -c -i -b
-             (enable-beep-on)
-             (change-count)
-             (change-interval)
-             (ping-host (remainder) t))
-            ((and (count-p) (interval-p) (beep-off-p)) ; check for -c -i -B
-             (enable-beep-off)
-             (change-count)
-             (change-interval)
-             (ping-host (remainder) t))
-            ((and (count-p) (interval-p)) ; check for -c -i
-             (change-count)
-             (change-interval)
-             (ping-host (remainder) t))
-            ((and (count-p) (beep-on-p)) ; check for -c -b
-             (change-count)
-             (enable-beep-on)
-             (ping-host (remainder) t))
-            ((and (count-p) (beep-off-p)) ; check for -c -B
-             (change-count)
-             (enable-beep-off)
-             (ping-host (remainder) t))
-            ((and (interval-p) (beep-on-p)) ; check for -i -b
-             (change-interval)
-             (enable-beep-on)
-             (ping-host (remainder) nil))
-            ((and (interval-p) (beep-off-p)) ; check for -i -B
-             (change-interval)
-             (enable-beep-off)
-             (ping-host (remainder) nil))
-            ((beep-on-p) ; check for -b
-             (enable-beep-on)
-             (ping-host (remainder) nil))
-            ((beep-off-p) ; check for -B
-             (enable-beep-off)
-             (ping-host (remainder) nil))
-            ((count-p) ; check for -c
-             (change-count)
-             (ping-host (remainder) t))
-            ((interval-p) ; check for -i
-             (change-interval)
-             (ping-host (remainder) nil))
-            ((host-present-p)
-             (ping-host (remainder) nil))
-            ((or (help-p) t)
-             (print-help)))
+      (cond ((or (help-p) (null (host-present))) (print-help))
+            (t (ping-host (host-present) *count-p*)))
     (#+sbcl sb-sys:interactive-interrupt
      #+ccl  ccl:interrupt-signal-condition
      #+clisp system::simple-interrupt-condition
