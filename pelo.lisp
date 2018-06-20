@@ -27,19 +27,34 @@ running, to end pelo and show the accumulated stats.
          (flag :short-name "B" :long-name "beep-offline"
                :description "Beep if host is down.")))
 
-(defvar *interval* 1 "Time in between pings")
-(defvar *count* 1 "Number of packets to send (initialized to 1 as placeholder)")
+(defvar *interval* 1
+  "Time in between pings")
 
-(defvar *sent* 0 "Number of packets sent")
-(defvar *received* 0 "Number of packets received")
+(defvar *count* 1
+  "Number of packets to send (initialized to 1 as placeholder)")
 
-(defvar *beep-online* nil "For the beep on check")
-(defvar *beep-offline* nil "For the beep off check")
+(defvar *sent* 0
+  "Number of packets sent")
 
-(defvar *count-p* nil "To check whether to count down.")
+(defvar *received* 0
+  "Number of packets received")
 
-(defvar *online* "common-lisp/pelo/resources/online.mp3" "Sound file for online host")
-(defvar *offline* "common-lisp/pelo/resources/offline.mp3" "Sound file for offline host")
+(defvar *beep-online* nil
+  "Beep on check")
+
+(defvar *beep-offline* nil
+  "Beep off check")
+
+(defvar *count-p* nil
+  "To check whether to count down.")
+
+(defvar *online*
+  "common-lisp/pelo/resources/online.mp3"
+  "Sound file for online host")
+
+(defvar *offline*
+  "common-lisp/pelo/resources/offline.mp3"
+  "Sound file for offline host")
 
 (defun home (path)
   "Return pathname with merged home directory."
@@ -89,17 +104,20 @@ running, to end pelo and show the accumulated stats.
 
 (defun statistics ()
   "Show stats of the pelo runtime."
-  (format *debug-io* "~a" (format nil "~&~%Sent: ~A ~&Received: ~A ~&Percent loss: ~A%~&" *sent*
-                                  *received* (cond ((= 0 *received*) 100)
-                                                   ((= 1 (/ *received* *sent*)) 0)
-                                                   (t (/ *received* (/ *sent* 1.0))))))
+  (format *debug-io*
+          "~a"
+          (format nil "~&~%Sent: ~A ~&Received: ~A ~&Percent loss: ~A%~&" *sent*
+                  *received* (cond ((= 0 *received*) 100)
+                                   ((= 1 (/ *received* *sent*)) 0)
+                                   (t (/ *received* (/ *sent* 1.0))))))
   (force-output *debug-io*)
   (exit))
 
 (defun get-ping (host)
   "Get ping reply from host."
-  (inferior-shell:run/ss `(inferior-shell:pipe (ping -c 1 ,host) (grep "time=")
-                                               (sed -e "s/^.*time=//;s/ *ms$//"))))
+  (inferior-shell:run/ss
+   `(inferior-shell:pipe (ping -c 1 ,host) (grep "time=")
+                         (sed -e "s/^.*time=//;s/ *ms$//"))))
 
 (defun dead-print (date)
   "Print only the date."
@@ -166,7 +184,8 @@ running, to end pelo and show the accumulated stats.
       (statistics))))
 
 (exporting-definitions
-  (defun pelo ()
-    "The name of the created script"))
+  (defun pelo (&rest args)
+    "Canonical entry point"
+    (apply #'main args)))
 
 (register-commands :pelo/pelo)
