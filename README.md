@@ -5,17 +5,33 @@ pelo
 pelo is a periodic host monitor that utilizes ping to check for host availability.
 
 
-Installation
-------------
+Table of contents
+-----------------
+
+- [Quickstart](#quickstart)
+- [Installation](#installation)
+- [Credits](#credits)
+
+
+<a name="quickstart">Quickstart</a>
+-----------------------------------
+
+If you simply want to try _pelo_ without having to build all the dependencies, run:
+
+    docker run --security-opt seccomp=unconfined ebzzry/pelo 8.8.8.8
+
+
+<a name="installation">Installation</a>
+---------------------------------------
 
 Install the dependencies using the following commands, on Debian and NixOS systems, respectively:
 
 ```bash
-sudo apt-get install -y sbcl cl-launch make git
+sudo apt-get install -y curl sbcl cl-launch make git iputils-ping sox
 ```
 
 ```bash
-nix-env -i sbcl cl-launch gnumake git
+nix-env -i curl sbcl cl-launch gnumake git iputils sox
 ```
 
 Then, install pelo:
@@ -25,15 +41,13 @@ mkdir -p ~/bin ~/common-lisp
 git clone https://github.com/fare/asdf ~/common-lisp/asdf
 git clone https://github.com/zhaqenl/pelo ~/common-lisp/pelo
 curl -O https://beta.quicklisp.org/quicklisp.lisp
-sbcl --load quicklisp.lisp --eval  '(quicklisp-quickstart:install)' --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file) (ql:quickload :cl-launch) (sb-ext:quit))'
-sbcl --noinform --eval "(mapc #'ql:quickload '(:inferior-shell :clon :cl-launch :fare-utils :cl-scripting))" --quit
-cd ~/common-lisp/pelo
-make install
+sbcl --noinform --load quicklisp.lisp --eval  '(quicklisp-quickstart:install)' --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file) (sb-ext:exit))'
+sbcl --noinform --eval "(progn (mapc #'ql:quickload '(:inferior-shell :clon :cl-launch :fare-utils :cl-scripting)) (sb-ext:exit))"
+make -C ~/common-lisp/pelo install
 ```
 
-
-Credits
--------
+<a name="credits">Credits</a>
+-----------------------------
 
 This was inspired by [pell](https://github.com/ebzzry/pell) and the structure of this README was
 based on [baf](https://github.com/ebzzry/baf).
