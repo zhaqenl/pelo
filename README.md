@@ -5,17 +5,33 @@ pelo
 pelo is a periodic host monitor that utilizes ping to check for host availability.
 
 
-Installation
-------------
+Table of contents
+-----------------
+
+- [Quickstart](#quickstart)
+- [Installation](#installation)
+- [Credits](#credits)
+
+
+<a name="quickstart">Quickstart</a>
+-----------------------------------
+
+If you simply want to try _pelo_ without having to build all the dependencies, run:
+
+    docker run --security-opt seccomp=unconfined ebzzry/pelo 8.8.8.8
+
+
+<a name="installation">Installation</a>
+---------------------------------------
 
 Install the dependencies using the following commands, on Debian and NixOS systems, respectively:
 
 ```bash
-sudo apt-get install -y curl sbcl cl-launch make git
+sudo apt-get install -y curl sbcl cl-launch make git iputils-ping sox
 ```
 
 ```bash
-nix-env -i curl sbcl cl-launch gnumake git
+nix-env -i curl sbcl cl-launch gnumake git iputils sox
 ```
 
 Then, install pelo:
@@ -30,9 +46,8 @@ sbcl --noinform --eval "(progn (mapc #'ql:quickload '(:inferior-shell :clon :cl-
 make -C ~/common-lisp/pelo install
 ```
 
-
-Credits
--------
+<a name="credits">Credits</a>
+-----------------------------
 
 This was inspired by [pell](https://github.com/ebzzry/pell) and the structure of this README was
 based on [baf](https://github.com/ebzzry/baf).
