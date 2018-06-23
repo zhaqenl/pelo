@@ -21,6 +21,22 @@ If you simply want to try _pelo_ without having to build all the dependencies, r
 
     docker run --security-opt seccomp=unconfined ebzzry/pelo 8.8.8.8
 
+If you’re satisfied, you may create a shell function:
+
+    pelo () { docker run --security-opt seccomp=unconfined ebzzry/pelo $@; }
+
+a shell alias:
+
+    alias pelo="docker run --security-opt seccomp=unconfined ebzzry/pelo"
+
+or even a script in `~/bin`:
+
+    cat > ~/bin/pelo << MEH
+    #!/usr/bin/env bash
+    docker run --security-opt seccomp=unconfined ebzzry/pelo $@
+    MEH
+    chmod +x ~/bin/pelo
+
 
 <a name="installation">Installation</a>
 ---------------------------------------
