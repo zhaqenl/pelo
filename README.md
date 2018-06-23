@@ -63,6 +63,11 @@ sbcl --noinform --eval "(progn (mapc #'ql:quickload '(:inferior-shell :clon :cl-
 make -C ~/common-lisp/pelo install
 ```
 
+The executable program will then be available at:
+
+    ~/bin/pelo
+
+
 <a name="docker">Docker</a>
 ---------------------------
 
