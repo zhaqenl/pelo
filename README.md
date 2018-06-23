@@ -10,6 +10,7 @@ Table of contents
 
 - [Quickstart](#quickstart)
 - [Installation](#installation)
+- [Docker](#docker)
 - [Credits](#credits)
 
 
@@ -45,6 +46,18 @@ sbcl --noinform --load quicklisp.lisp --eval  '(quicklisp-quickstart:install)' -
 sbcl --noinform --eval "(progn (mapc #'ql:quickload '(:inferior-shell :clon :cl-launch :fare-utils :cl-scripting)) (sb-ext:exit))"
 make -C ~/common-lisp/pelo install
 ```
+
+<a name="docker">Docker</a>
+---------------------------
+
+To build the Docker image, run the following command inside the repository directory:
+
+    docker build -t ogag/pelo .
+
+To test it out:
+
+    docker run --security-opt seccomp=unconfined ogag/pelo --help
+
 
 <a name="credits">Credits</a>
 -----------------------------
