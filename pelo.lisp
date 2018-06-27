@@ -5,7 +5,8 @@
           #:cl-scripting
           #:fare-utils
           #:net.didierverna.clon)
-  (:export #:pelo))
+  (:export #:get-ping
+           #:pelo))
 
 (in-package :pelo/pelo)
 
