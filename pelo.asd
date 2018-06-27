@@ -10,7 +10,7 @@
   :version "0.0.2"
   :description "Common Lisp ping"
   :license "MIT"
-  :author "Raymund Martinez"
+  :author "Raymund Martinez <zhaqenl@gmail.com>"
   :class :package-inferred-system
   :depends-on ((:version "cl-scripting" "0.1")
                (:version "inferior-shell" "2.0.3.3")
