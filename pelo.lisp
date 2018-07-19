@@ -61,14 +61,6 @@ running, to end pelo and show the accumulated stats.
   "Return pathname with merged home directory."
   (uiop:merge-pathnames* path (user-homedir-pathname)))
 
-(defun get-opt (option)
-  "Get the value of OPTION from the context."
-  (getopt :short-name option :context (make-context)))
-
-(defun help-p ()
-  "Check if the help flag is provided."
-  (get-opt "h"))
-
 (defun print-help ()
   "Print help text."
   (help) (exit))
@@ -174,7 +166,8 @@ running, to end pelo and show the accumulated stats.
            (setf *count* value))
           ((or (string= name "i") (string= name "interval")) (setf *interval* value)))) 
   (handler-case
-      (cond ((or (help-p) (null (host-present))) (print-help))
+      (cond ((or (getopt :short-name "h" :context (make-context)) (null (host-present)))
+             (print-help))
             (t (ping-host (host-present) *count-p*)))
     (#+sbcl sb-sys:interactive-interrupt
      #+ccl  ccl:interrupt-signal-condition
